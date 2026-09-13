@@ -1,0 +1,57 @@
+<view class="container">
+  <picker mode="date" fields="month" value="{{monthKey}}" bindchange="onMonthChange">
+    <view class="month-picker">{{monthLabel}}</view>
+  </picker>
+
+  <view class="card summary-card">
+    <view class="grid">
+      <view>
+        <view class="muted">收入</view>
+        <view class="amount-income">¥{{summary.income}}</view>
+      </view>
+      <view>
+        <view class="muted">支出</view>
+        <view class="amount-expense">¥{{summary.expense}}</view>
+      </view>
+      <view>
+        <view class="muted">结余</view>
+        <view>¥{{summary.balance}}</view>
+      </view>
+    </view>
+    <view wx:if="{{summary.hasBudget}}" class="budget-box">
+      <view class="row between">
+        <text>预算 ¥{{summary.budget}}</text>
+        <text class="{{summary.budgetOver ? 'amount-expense' : 'muted'}}">剩余 ¥{{summary.budgetLeft}}</text>
+      </view>
+      <view class="bar"><view class="bar-fill budget-fill" style="width: {{summary.budgetPercent}}%;"></view></view>
+    </view>
+  </view>
+
+  <view class="section-title">支出分类</view>
+  <view class="card rank-card">
+    <view wx:if="{{expenseRanks.length}}">
+      <view wx:for="{{expenseRanks}}" wx:key="name" class="rank-item">
+        <view class="row between">
+          <text>{{item.name}}</text>
+          <text class="amount-expense">¥{{item.amountText}}</text>
+        </view>
+        <view class="bar"><view class="bar-fill expense-fill" style="width: {{item.percent}}%;"></view></view>
+      </view>
+    </view>
+    <view wx:else class="empty muted">本月暂无支出</view>
+  </view>
+
+  <view class="section-title">收入分类</view>
+  <view class="card rank-card">
+    <view wx:if="{{incomeRanks.length}}">
+      <view wx:for="{{incomeRanks}}" wx:key="name" class="rank-item">
+        <view class="row between">
+          <text>{{item.name}}</text>
+          <text class="amount-income">¥{{item.amountText}}</text>
+        </view>
+        <view class="bar"><view class="bar-fill income-fill" style="width: {{item.percent}}%;"></view></view>
+      </view>
+    </view>
+    <view wx:else class="empty muted">本月暂无收入</view>
+  </view>
+</view>

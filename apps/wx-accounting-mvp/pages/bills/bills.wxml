@@ -1,0 +1,31 @@
+<view class="container">
+  <view class="toolbar row between">
+    <picker mode="date" fields="month" value="{{monthKey}}" bindchange="onMonthChange">
+      <view class="month-picker">{{monthLabel}}</view>
+    </picker>
+    <button class="primary-btn add-btn" bindtap="goAdd">新增</button>
+  </view>
+
+  <view wx:if="{{hasBills}}" class="card bill-list">
+    <view wx:for="{{bills}}" wx:key="id" class="bill-item">
+      <view class="row between">
+        <view class="bill-main" data-id="{{item.id}}" bindtap="edit">
+          <view class="title">{{item.category}}</view>
+          <view class="muted small">{{item.date}} · {{item.account}}</view>
+          <view wx:if="{{item.note}}" class="note">{{item.note}}</view>
+        </view>
+        <view class="amount-block">
+          <view class="{{item.type === 'income' ? 'amount-income' : 'amount-expense'}}">
+            {{item.type === 'income' ? '+' : '-'}}¥{{item.amountText}}
+          </view>
+          <view class="delete" data-id="{{item.id}}" bindtap="remove">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty card">
+    <view>{{monthLabel}}暂无账单</view>
+    <view class="muted">点击上方按钮记录第一笔。</view>
+  </view>
+</view>

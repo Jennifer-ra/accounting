@@ -1,0 +1,81 @@
+<view class="container">
+  <view class="hero card">
+    <view class="muted">{{monthLabel}}</view>
+    <view class="balance">¥{{summary.balance}}</view>
+    <view class="muted">结余</view>
+    <view class="summary-row">
+      <view>
+        <view class="muted">收入</view>
+        <view class="amount-income">¥{{summary.income}}</view>
+      </view>
+      <view>
+        <view class="muted">支出</view>
+        <view class="amount-expense">¥{{summary.expense}}</view>
+      </view>
+      <view>
+        <view class="muted">笔数</view>
+        <view>{{summary.count}}</view>
+      </view>
+    </view>
+    <view wx:if="{{summary.hasBudget}}" class="budget-box">
+      <view class="row between">
+        <text>本月预算</text>
+        <text class="{{summary.budgetOver ? 'amount-expense' : ''}}">剩余 ¥{{summary.budgetLeft}}</text>
+      </view>
+      <view class="budget-bar"><view class="budget-fill" style="width: {{summary.budgetPercent}}%;"></view></view>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <button class="primary-btn" bindtap="goAddExpense">记支出</button>
+    <button class="secondary-btn" bindtap="goAddIncome">记收入</button>
+  </view>
+
+  <view class="section-title row between">
+    <text>最近账单</text>
+    <text class="muted" bindtap="goBills">全部</text>
+  </view>
+
+  <view wx:if="{{hasBills}}" class="card bill-list">
+    <view wx:for="{{recentBills}}" wx:key="id" class="bill-item row between">
+      <view>
+        <view>{{item.category}}</view>
+        <view class="muted small">{{item.date}} · {{item.account}}</view>
+      </view>
+      <view class="{{item.type === 'income' ? 'amount-income' : 'amount-expense'}}">
+        {{item.type === 'income' ? '+' : '-'}}¥{{item.amountText}}
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty card">
+    <view>还没有账单</view>
+    <view class="muted">从第一笔早餐、地铁或工资开始。</view>
+  </view>
+
+  <view wx:if="{{showQuickAdd}}" class="sheet-mask" catchtap="closeQuickAdd">
+    <view class="quick-sheet" catchtap="noop">
+      <view class="row between sheet-title">
+        <text>{{quickTitle}}</text>
+        <text class="muted" bindtap="closeQuickAdd">关闭</text>
+      </view>
+      <input class="quick-amount" type="digit" placeholder="0.00" value="{{quickAmount}}" data-field="quickAmount" bindinput="onQuickInput" focus />
+      <view class="quick-grid">
+        <picker mode="selector" range="{{quickCategories}}" value="{{quickCategoryIndex}}" bindchange="onQuickCategoryChange">
+          <view class="quick-cell">{{quickCategories[quickCategoryIndex]}}</view>
+        </picker>
+        <picker mode="selector" range="{{accounts}}" value="{{quickAccountIndex}}" bindchange="onQuickAccountChange">
+          <view class="quick-cell">{{accounts[quickAccountIndex]}}</view>
+        </picker>
+        <picker mode="date" value="{{quickDate}}" bindchange="onQuickDateChange">
+          <view class="quick-cell">{{quickDate}}</view>
+        </picker>
+      </view>
+      <input class="quick-note" placeholder="备注，可不填" value="{{quickNote}}" data-field="quickNote" bindinput="onQuickInput" />
+      <view class="sheet-actions">
+        <button class="secondary-btn" bindtap="goFullAdd">更多字段</button>
+        <button class="primary-btn" bindtap="submitQuickAdd">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

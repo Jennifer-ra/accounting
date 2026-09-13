@@ -1,0 +1,43 @@
+<view class="container form-page">
+  <view class="card form-card">
+    <view class="field">
+      <view class="label">类型</view>
+      <picker mode="selector" range="{{typeOptions}}" value="{{typeIndex}}" bindchange="onTypeChange">
+        <view class="picker-value">{{typeOptions[typeIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="field amount-field">
+      <view class="label">金额</view>
+      <input class="amount-input" type="digit" placeholder="0.00" value="{{amount}}" data-field="amount" bindinput="onInput" focus />
+    </view>
+
+    <view class="field">
+      <view class="label">分类</view>
+      <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker-value">{{categories[categoryIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <view class="label">账户</view>
+      <picker mode="selector" range="{{accounts}}" value="{{accountIndex}}" bindchange="onAccountChange">
+        <view class="picker-value">{{accounts[accountIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <view class="label">日期</view>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="picker-value">{{date}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <view class="label">备注</view>
+      <input value="{{note}}" data-field="note" bindinput="onInput" placeholder="可选" />
+    </view>
+  </view>
+
+  <button class="primary-btn submit-btn" bindtap="submit">{{mode === 'edit' ? '更新' : '保存'}}</button>
+</view>

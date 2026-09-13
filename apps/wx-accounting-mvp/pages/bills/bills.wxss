@@ -1,0 +1,68 @@
+.toolbar {
+  margin-bottom: 24rpx;
+}
+
+.month-picker {
+  padding: 14rpx 24rpx;
+  background: #ffffff;
+  border-radius: 999rpx;
+  color: #0f172a;
+  font-weight: 600;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.05);
+}
+
+.add-btn {
+  width: 160rpx;
+  margin: 0;
+}
+
+.bill-item {
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.bill-item:first-child {
+  padding-top: 0;
+}
+
+.bill-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.bill-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.small {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+}
+
+.note {
+  margin-top: 10rpx;
+  color: #475569;
+  font-size: 26rpx;
+}
+
+.amount-block {
+  text-align: right;
+  min-width: 180rpx;
+}
+
+.delete {
+  margin-top: 12rpx;
+  color: #ef4444;
+  font-size: 24rpx;
+}
+
+.empty {
+  text-align: center;
+  line-height: 1.8;
+}

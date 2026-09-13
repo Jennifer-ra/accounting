@@ -1,0 +1,38 @@
+.form-page {
+  padding-bottom: 60rpx;
+}
+
+.form-card {
+  padding-top: 8rpx;
+}
+
+.field {
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.field:last-child {
+  border-bottom: none;
+}
+
+.label {
+  margin-bottom: 14rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.picker-value,
+input {
+  min-height: 48rpx;
+  font-size: 32rpx;
+  color: #0f172a;
+}
+
+.amount-input {
+  font-size: 64rpx;
+  font-weight: 700;
+}
+
+.submit-btn {
+  margin-top: 32rpx;
+}

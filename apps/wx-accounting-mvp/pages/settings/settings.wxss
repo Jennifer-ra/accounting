@@ -1,0 +1,103 @@
+.profile-card {
+  margin-bottom: 24rpx;
+}
+
+.app-name {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.count {
+  margin-top: 30rpx;
+  font-size: 32rpx;
+}
+
+.section-card {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  margin-bottom: 18rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.inline-form {
+  display: grid;
+  grid-template-columns: 180rpx 1fr 132rpx;
+  gap: 14rpx;
+  align-items: center;
+}
+
+.inline-form.two-col {
+  grid-template-columns: 1fr 132rpx;
+}
+
+.inline-form input,
+.type-picker {
+  height: 76rpx;
+  box-sizing: border-box;
+  padding: 0 20rpx;
+  background: #f8fafc;
+  border-radius: 14rpx;
+  font-size: 26rpx;
+}
+
+.type-picker {
+  line-height: 76rpx;
+  color: #475569;
+}
+
+.inline-btn {
+  height: 76rpx;
+  line-height: 76rpx;
+  margin: 0;
+  padding: 0;
+  font-size: 26rpx;
+}
+
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 18rpx;
+}
+
+.tag {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+}
+
+.expense-tag {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.income-tag {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.account-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.action-card {
+  margin-bottom: 24rpx;
+}
+
+.action-card button {
+  margin-bottom: 20rpx;
+}
+
+.action-card button:last-child {
+  margin-bottom: 0;
+}
+
+.tips {
+  padding: 0 8rpx 40rpx;
+  line-height: 1.7;
+  font-size: 24rpx;
+}

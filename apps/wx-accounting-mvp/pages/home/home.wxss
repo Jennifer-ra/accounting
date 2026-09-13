@@ -1,0 +1,137 @@
+.hero {
+  background: linear-gradient(135deg, #0f172a, #2563eb);
+  color: #ffffff;
+}
+
+.hero .muted {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.balance {
+  margin-top: 18rpx;
+  font-size: 72rpx;
+  font-weight: 700;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  margin-top: 36rpx;
+}
+
+.budget-box {
+  margin-top: 30rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.24);
+  font-size: 24rpx;
+}
+
+.budget-bar {
+  height: 12rpx;
+  margin-top: 14rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999rpx;
+}
+
+.budget-fill {
+  height: 100%;
+  background: #f8fafc;
+  border-radius: 999rpx;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin: 24rpx 0 32rpx;
+}
+
+.section-title {
+  margin: 8rpx 0 18rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.bill-item {
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.bill-item:last-child {
+  border-bottom: none;
+}
+
+.small {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+}
+
+.empty {
+  text-align: center;
+  line-height: 1.8;
+}
+
+.sheet-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+.quick-sheet {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx 28rpx 44rpx;
+  background: #ffffff;
+  border-radius: 28rpx 28rpx 0 0;
+}
+
+.sheet-title {
+  margin-bottom: 18rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.quick-amount {
+  height: 108rpx;
+  font-size: 68rpx;
+  font-weight: 700;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14rpx;
+  margin: 18rpx 0;
+}
+
+.quick-cell {
+  padding: 20rpx 14rpx;
+  text-align: center;
+  background: #f1f5f9;
+  border-radius: 14rpx;
+  color: #0f172a;
+  font-size: 24rpx;
+}
+
+.quick-note {
+  min-height: 72rpx;
+  padding: 0 20rpx;
+  background: #f8fafc;
+  border-radius: 14rpx;
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
