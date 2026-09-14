@@ -1,5 +1,6 @@
 const storage = require('../../utils/storage')
 const format = require('../../utils/format')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -7,12 +8,14 @@ Page({
     monthLabel: '',
     summary: {},
     expenseRanks: [],
-    incomeRanks: []
+    incomeRanks: [],
+    syncing: false
   },
 
   onShow() {
     if (!this.data.monthKey) this.setData({ monthKey: format.toMonthKey() })
     this.refresh()
+    if (cloud.isEnabled()) this.syncCloud()
   },
 
   refresh() {
@@ -28,9 +31,18 @@ Page({
     })
   },
 
+  syncCloud() {
+    this.setData({ syncing: true })
+    cloud.syncMonth(this.data.monthKey)
+      .then(() => this.refresh())
+      .catch(error => wx.showToast({ title: error.message || '同步失败', icon: 'none' }))
+      .finally(() => this.setData({ syncing: false }))
+  },
+
   onMonthChange(event) {
     this.setData({ monthKey: event.detail.value })
     this.refresh()
+    if (cloud.isEnabled()) this.syncCloud()
   },
 
   formatSummary(summary) {

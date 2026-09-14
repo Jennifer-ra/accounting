@@ -101,3 +101,21 @@
   line-height: 1.7;
   font-size: 24rpx;
 }
+
+.cloud-row {
+  margin-bottom: 20rpx;
+}
+
+.cloud-form {
+  margin-top: 18rpx;
+}
+
+.cloud-btn {
+  margin-top: 20rpx;
+}
+
+.small {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+}
+

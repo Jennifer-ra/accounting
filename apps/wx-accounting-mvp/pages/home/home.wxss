@@ -135,3 +135,12 @@
   margin-top: 22rpx;
 }
 
+
+.mode-pill {
+  padding: 6rpx 14rpx;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999rpx;
+  font-size: 22rpx;
+}
+

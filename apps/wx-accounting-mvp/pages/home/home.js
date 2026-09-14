@@ -1,5 +1,6 @@
 const storage = require('../../utils/storage')
 const format = require('../../utils/format')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -8,6 +9,8 @@ Page({
     summary: {},
     recentBills: [],
     hasBills: false,
+    cloudEnabled: false,
+    syncing: false,
     showQuickAdd: false,
     quickType: 'expense',
     quickTitle: '记支出',
@@ -22,6 +25,7 @@ Page({
 
   onShow() {
     this.refresh()
+    if (cloud.isEnabled()) this.syncCloud()
     if (this.data.showQuickAdd) this.prepareQuickAdd(this.data.quickType)
   },
 
@@ -33,8 +37,18 @@ Page({
       monthLabel: format.getMonthLabel(monthKey),
       summary: this.formatSummary(storage.getSummary(monthKey)),
       recentBills: bills.slice(0, 5).map(this.formatBill),
-      hasBills: bills.length > 0
+      hasBills: bills.length > 0,
+      cloudEnabled: cloud.isEnabled()
     })
+  },
+
+  syncCloud() {
+    const monthKey = format.toMonthKey()
+    this.setData({ syncing: true })
+    cloud.syncMonth(monthKey)
+      .then(() => this.refresh())
+      .catch(error => wx.showToast({ title: error.message || '同步失败', icon: 'none' }))
+      .finally(() => this.setData({ syncing: false }))
   },
 
   formatSummary(summary) {
@@ -111,17 +125,20 @@ Page({
       wx.showToast({ title: '请输入正确金额', icon: 'none' })
       return
     }
-    storage.addBill({
+    const payload = {
       type: this.data.quickType,
       amountFen,
       category: this.data.quickCategories[this.data.quickCategoryIndex],
       account: this.data.accounts[this.data.quickAccountIndex],
       date: this.data.quickDate,
       note: this.data.quickNote.trim()
-    })
-    this.setData({ showQuickAdd: false })
-    this.refresh()
-    wx.showToast({ title: '已记录', icon: 'success' })
+    }
+    const save = cloud.isEnabled() ? cloud.createBill(payload) : Promise.resolve(storage.addBill(payload))
+    save.then(() => {
+      this.setData({ showQuickAdd: false })
+      this.refresh()
+      wx.showToast({ title: '已记录', icon: 'success' })
+    }).catch(error => wx.showToast({ title: error.message || '保存失败', icon: 'none' }))
   },
 
   goFullAdd() {

@@ -1,5 +1,6 @@
 const storage = require('../../utils/storage')
 const format = require('../../utils/format')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -15,7 +16,8 @@ Page({
     accountIndex: 0,
     accounts: [],
     date: '',
-    note: ''
+    note: '',
+    saving: false
   },
 
   onLoad(options) {
@@ -25,10 +27,7 @@ Page({
     }
     const type = options.type === 'income' ? 'income' : 'expense'
     this.setType(type)
-    this.setData({
-      accounts: storage.getAccounts(),
-      date: format.toDateKey()
-    })
+    this.setData({ accounts: storage.getAccounts(), date: format.toDateKey() })
   },
 
   loadBill(id) {
@@ -66,21 +65,10 @@ Page({
     })
   },
 
-  onTypeChange(event) {
-    this.setType(Number(event.detail.value) === 1 ? 'income' : 'expense')
-  },
-
-  onCategoryChange(event) {
-    this.setData({ categoryIndex: Number(event.detail.value) })
-  },
-
-  onAccountChange(event) {
-    this.setData({ accountIndex: Number(event.detail.value) })
-  },
-
-  onDateChange(event) {
-    this.setData({ date: event.detail.value })
-  },
+  onTypeChange(event) { this.setType(Number(event.detail.value) === 1 ? 'income' : 'expense') },
+  onCategoryChange(event) { this.setData({ categoryIndex: Number(event.detail.value) }) },
+  onAccountChange(event) { this.setData({ accountIndex: Number(event.detail.value) }) },
+  onDateChange(event) { this.setData({ date: event.detail.value }) },
 
   onInput(event) {
     const field = event.currentTarget.dataset.field
@@ -88,6 +76,7 @@ Page({
   },
 
   submit() {
+    if (this.data.saving) return
     const amountFen = format.yuanToFen(this.data.amount)
     if (!amountFen || amountFen <= 0) {
       wx.showToast({ title: '请输入正确金额', icon: 'none' })
@@ -101,9 +90,19 @@ Page({
       date: this.data.date,
       note: this.data.note.trim()
     }
-    if (this.data.mode === 'edit') storage.updateBill(this.data.billId, payload)
-    else storage.addBill(payload)
-    wx.showToast({ title: this.data.mode === 'edit' ? '已更新' : '已记录', icon: 'success' })
-    setTimeout(() => wx.navigateBack(), 450)
+    this.setData({ saving: true })
+    let save
+    if (cloud.isEnabled()) {
+      save = this.data.mode === 'edit' ? cloud.updateBill(this.data.billId, payload) : cloud.createBill(payload)
+    } else {
+      if (this.data.mode === 'edit') storage.updateBill(this.data.billId, payload)
+      else storage.addBill(payload)
+      save = Promise.resolve()
+    }
+    save.then(() => {
+      wx.showToast({ title: this.data.mode === 'edit' ? '已更新' : '已记录', icon: 'success' })
+      setTimeout(() => wx.navigateBack(), 450)
+    }).catch(error => wx.showToast({ title: error.message || '保存失败', icon: 'none' }))
+      .finally(() => this.setData({ saving: false }))
   }
 })

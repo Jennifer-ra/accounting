@@ -1,6 +1,9 @@
 <view class="container">
   <view class="hero card">
-    <view class="muted">{{monthLabel}}</view>
+    <view class="row between">
+      <text class="muted">{{monthLabel}}</text>
+      <text class="mode-pill">{{cloudEnabled ? (syncing ? '同步中' : '云端') : '本地'}}</text>
+    </view>
     <view class="balance">¥{{summary.balance}}</view>
     <view class="muted">结余</view>
     <view class="summary-row">

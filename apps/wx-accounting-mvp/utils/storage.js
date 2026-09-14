@@ -15,6 +15,11 @@ function cloneDefaultCategories() {
   }
 }
 
+function normalizeList(list, fallback) {
+  const source = Array.isArray(list) && list.length ? list : fallback
+  return Array.from(new Set(source.map(item => String(item || '').trim()).filter(Boolean)))
+}
+
 function readConfig() {
   const saved = wx.getStorageSync(CONFIG_KEY) || {}
   const categories = Object.assign(cloneDefaultCategories(), saved.categories || {})
@@ -33,9 +38,13 @@ function writeConfig(config) {
   wx.setStorageSync(VERSION_KEY, Date.now())
 }
 
-function normalizeList(list, fallback) {
-  const source = Array.isArray(list) && list.length ? list : fallback
-  return Array.from(new Set(source.map(item => String(item || '').trim()).filter(Boolean)))
+function replaceConfig(config) {
+  const current = readConfig()
+  const next = Object.assign({}, current)
+  if (config && config.categories) next.categories = Object.assign({}, current.categories, config.categories)
+  if (config && Array.isArray(config.accounts)) next.accounts = normalizeList(config.accounts, DEFAULT_ACCOUNTS)
+  if (config && Number.isInteger(config.monthlyBudgetFen)) next.monthlyBudgetFen = config.monthlyBudgetFen
+  writeConfig(next)
 }
 
 function getCategories(type) {
@@ -71,25 +80,19 @@ function setMonthlyBudget(amountFen) {
   writeConfig(config)
 }
 
-function readBills() {
-  const bills = wx.getStorageSync(STORAGE_KEY)
-  return Array.isArray(bills) ? sortBills(bills.map(normalizeBill)) : []
-}
-
-function writeBills(bills) {
-  wx.setStorageSync(STORAGE_KEY, sortBills(bills.map(normalizeBill)))
-  wx.setStorageSync(VERSION_KEY, Date.now())
-}
-
 function normalizeBill(item) {
+  const id = String(item.id || `${Date.now()}_${Math.random().toString(16).slice(2)}`)
   return {
-    id: String(item.id || `${Date.now()}_${Math.random().toString(16).slice(2)}`),
+    id,
     type: item.type === 'income' ? 'income' : 'expense',
     amountFen: Number(item.amountFen) || 0,
     category: item.category || '其他',
     account: item.account || '默认账户',
     date: item.date || '',
     note: item.note || '',
+    serverId: item.serverId ? String(item.serverId) : '',
+    clientId: item.clientId || id,
+    source: item.source || 'manual',
     createdAt: item.createdAt || Date.now(),
     updatedAt: item.updatedAt || item.createdAt || Date.now()
   }
@@ -100,6 +103,16 @@ function sortBills(bills) {
     if (a.date === b.date) return b.createdAt - a.createdAt
     return a.date < b.date ? 1 : -1
   })
+}
+
+function readBills() {
+  const bills = wx.getStorageSync(STORAGE_KEY)
+  return Array.isArray(bills) ? sortBills(bills.map(normalizeBill)) : []
+}
+
+function writeBills(bills) {
+  wx.setStorageSync(STORAGE_KEY, sortBills(bills.map(normalizeBill)))
+  wx.setStorageSync(VERSION_KEY, Date.now())
 }
 
 function addBill(input) {
@@ -117,6 +130,13 @@ function findBill(id) {
   return readBills().find(item => item.id === id)
 }
 
+function upsertBill(bill) {
+  const next = normalizeBill(bill)
+  const bills = readBills().filter(item => item.id !== next.id && item.clientId !== next.clientId)
+  writeBills([next].concat(bills))
+  return next
+}
+
 function updateBill(id, patch) {
   const now = Date.now()
   const bills = readBills().map(item => item.id === id ? normalizeBill(Object.assign({}, item, patch, { updatedAt: now })) : item)
@@ -124,7 +144,7 @@ function updateBill(id, patch) {
 }
 
 function removeBill(id) {
-  writeBills(readBills().filter(item => item.id !== id))
+  writeBills(readBills().filter(item => item.id !== id && item.serverId !== String(id)))
 }
 
 function clearBills() {
@@ -139,10 +159,9 @@ function replaceBills(bills) {
 }
 
 function mergeBills(bills) {
-  const current = readBills()
   const map = {}
-  current.concat(bills.map(normalizeBill)).forEach(item => {
-    map[item.id] = item
+  readBills().concat(bills.map(normalizeBill)).forEach(item => {
+    map[item.clientId || item.id] = item
   })
   writeBills(Object.keys(map).map(id => map[id]))
 }
@@ -171,9 +190,7 @@ function groupByCategory(monthKey, type) {
   const map = {}
   getBillsByMonth(monthKey)
     .filter(item => item.type === type)
-    .forEach(item => {
-      map[item.category] = (map[item.category] || 0) + item.amountFen
-    })
+    .forEach(item => { map[item.category] = (map[item.category] || 0) + item.amountFen })
   return Object.keys(map)
     .map(name => ({ name, amountFen: map[name] }))
     .sort((a, b) => b.amountFen - a.amountFen)
@@ -181,6 +198,7 @@ function groupByCategory(monthKey, type) {
 
 module.exports = {
   readConfig,
+  replaceConfig,
   getCategories,
   getAccounts,
   addCategory,
@@ -189,6 +207,7 @@ module.exports = {
   readBills,
   addBill,
   findBill,
+  upsertBill,
   updateBill,
   removeBill,
   clearBills,

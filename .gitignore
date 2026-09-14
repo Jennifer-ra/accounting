@@ -8,3 +8,7 @@ miniprogram_npm/
 project.private.config.json
 *.local
 *.log
+
+.env
+services/go-api/.env
+

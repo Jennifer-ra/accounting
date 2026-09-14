@@ -1,6 +1,7 @@
 const storage = require('../../utils/storage')
 const format = require('../../utils/format')
 const importer = require('../../utils/importer')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -11,20 +12,25 @@ Page({
     categoryTypes: ['支出分类', '收入分类'],
     newCategory: '',
     newAccount: '',
-    monthlyBudget: ''
+    monthlyBudget: '',
+    cloudEnabled: false,
+    apiBaseUrl: '',
+    syncing: false
   },
 
-  onShow() {
-    this.refresh()
-  },
+  onShow() { this.refresh() },
 
   refresh() {
     const config = storage.readConfig()
+    const cloudSettings = cloud.readSettings()
     this.setData({
       billCount: storage.readBills().length,
       categories: config.categories,
       accounts: config.accounts,
-      monthlyBudget: config.monthlyBudgetFen ? format.fenToYuan(config.monthlyBudgetFen) : ''
+      monthlyBudget: config.monthlyBudgetFen ? format.fenToYuan(config.monthlyBudgetFen) : '',
+      cloudEnabled: cloudSettings.enabled,
+      apiBaseUrl: cloudSettings.apiBaseUrl,
+      syncing: false
     })
   },
 
@@ -33,29 +39,61 @@ Page({
     this.setData({ [field]: event.detail.value })
   },
 
-  onCategoryTypeChange(event) {
-    this.setData({ categoryTypeIndex: Number(event.detail.value) })
+  onCloudModeChange(event) {
+    const enabled = event.detail.value
+    cloud.setEnabled(enabled)
+    this.setData({ cloudEnabled: enabled })
+    if (enabled) this.loginAndSync()
   },
+
+  saveApiBaseUrl() {
+    cloud.setApiBaseUrl(this.data.apiBaseUrl)
+    this.refresh()
+    wx.showToast({ title: '地址已保存', icon: 'success' })
+  },
+
+  loginAndSync() {
+    this.setData({ syncing: true })
+    cloud.login()
+      .then(() => cloud.syncMonth(format.toMonthKey()))
+      .then(() => {
+        this.refresh()
+        wx.showToast({ title: '云端已连接', icon: 'success' })
+      })
+      .catch(error => {
+        cloud.setEnabled(false)
+        this.refresh()
+        wx.showToast({ title: error.message || '连接失败', icon: 'none' })
+      })
+  },
+
+  onCategoryTypeChange(event) { this.setData({ categoryTypeIndex: Number(event.detail.value) }) },
 
   addCategory() {
     const type = this.data.categoryTypeIndex === 1 ? 'income' : 'expense'
-    if (!storage.addCategory(type, this.data.newCategory)) {
-      wx.showToast({ title: '请输入分类名称', icon: 'none' })
-      return
-    }
-    this.setData({ newCategory: '' })
-    this.refresh()
-    wx.showToast({ title: '已添加', icon: 'success' })
+    const save = cloud.isEnabled() ? cloud.addCategory(type, this.data.newCategory) : Promise.resolve(storage.addCategory(type, this.data.newCategory))
+    save.then(result => {
+      if (result === false) {
+        wx.showToast({ title: '请输入分类名称', icon: 'none' })
+        return
+      }
+      this.setData({ newCategory: '' })
+      this.refresh()
+      wx.showToast({ title: '已添加', icon: 'success' })
+    }).catch(error => wx.showToast({ title: error.message || '添加失败', icon: 'none' }))
   },
 
   addAccount() {
-    if (!storage.addAccount(this.data.newAccount)) {
-      wx.showToast({ title: '请输入账户名称', icon: 'none' })
-      return
-    }
-    this.setData({ newAccount: '' })
-    this.refresh()
-    wx.showToast({ title: '已添加', icon: 'success' })
+    const save = cloud.isEnabled() ? cloud.addAccount(this.data.newAccount) : Promise.resolve(storage.addAccount(this.data.newAccount))
+    save.then(result => {
+      if (result === false) {
+        wx.showToast({ title: '请输入账户名称', icon: 'none' })
+        return
+      }
+      this.setData({ newAccount: '' })
+      this.refresh()
+      wx.showToast({ title: '已添加', icon: 'success' })
+    }).catch(error => wx.showToast({ title: error.message || '添加失败', icon: 'none' }))
   },
 
   saveBudget() {
@@ -64,16 +102,20 @@ Page({
       wx.showToast({ title: '预算金额不正确', icon: 'none' })
       return
     }
-    storage.setMonthlyBudget(amountFen)
-    this.refresh()
-    wx.showToast({ title: '预算已保存', icon: 'success' })
+    const monthKey = format.toMonthKey()
+    const save = cloud.isEnabled() ? cloud.setMonthlyBudget(monthKey, amountFen) : Promise.resolve(storage.setMonthlyBudget(amountFen))
+    save.then(() => {
+      this.refresh()
+      wx.showToast({ title: '预算已保存', icon: 'success' })
+    }).catch(error => wx.showToast({ title: error.message || '保存失败', icon: 'none' }))
   },
 
   exportData() {
     const payload = {
       app: 'wx-accounting-mvp',
-      version: 2,
+      version: 3,
       exportedAt: new Date().toISOString(),
+      cloud: cloud.readSettings(),
       config: storage.readConfig(),
       bills: storage.readBills()
     }

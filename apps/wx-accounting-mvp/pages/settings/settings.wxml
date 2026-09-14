@@ -1,8 +1,23 @@
 <view class="container">
   <view class="card profile-card">
     <view class="app-name">轻记账</view>
-    <view class="muted">本地优先的记账 MVP</view>
+    <view class="muted">本地优先，可切换云端同步</view>
     <view class="count">{{billCount}} 笔账单</view>
+  </view>
+
+  <view class="card section-card">
+    <view class="row between cloud-row">
+      <view>
+        <view class="section-title">云端模式</view>
+        <view class="muted small">关闭时完全使用本地缓存</view>
+      </view>
+      <switch checked="{{cloudEnabled}}" bindchange="onCloudModeChange" />
+    </view>
+    <view class="inline-form two-col cloud-form">
+      <input value="{{apiBaseUrl}}" data-field="apiBaseUrl" bindinput="onInput" placeholder="API 地址" />
+      <button class="secondary-btn inline-btn" bindtap="saveApiBaseUrl">保存</button>
+    </view>
+    <button wx:if="{{cloudEnabled}}" class="primary-btn cloud-btn" loading="{{syncing}}" bindtap="loginAndSync">登录并同步</button>
   </view>
 
   <view class="card section-card">
@@ -48,7 +63,6 @@
   </view>
 
   <view class="tips muted">
-    CSV 导入会尝试识别金额、时间、类型、分类、备注等列，适合先复制微信或支付宝导出的账单内容做初步导入。
+    云端模式需要后端服务可访问。开发阶段可用本机 API 地址，发布上线前需要配置 HTTPS 域名和微信小程序 request 合法域名。
   </view>
 </view>
-
